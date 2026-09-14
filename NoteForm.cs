@@ -732,6 +732,20 @@ internal sealed class NoteForm : Form
         NoteStore.SaveSettings(_settings);
     }
 
+    protected override void OnMouseCaptureChanged(EventArgs e)
+    {
+        base.OnMouseCaptureChanged(e);
+
+        // Capture can be stolen without a MouseUp (Alt-Tab, UAC, Explorer restart).
+        if (Capture || _dragZone == Zone.None)
+            return;
+
+        _dragZone = Zone.None;
+        _editor.ResumeRepairs();
+        CaptureBounds();
+        NoteStore.SaveSettings(_settings);
+    }
+
     protected override void OnMouseLeave(EventArgs e)
     {
         base.OnMouseLeave(e);
