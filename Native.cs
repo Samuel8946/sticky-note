@@ -124,6 +124,17 @@ internal static class Native
     [DllImport("user32.dll")]
     public static extern IntPtr SetFocus(IntPtr hWnd);
 
+    /// <summary>
+    /// Hide the caret before copying pixels from an EDIT control. The caret is XOR-drawn on a
+    /// system timer outside WM_PAINT; capturing while it is mid-blink permanently stamps that
+    /// inverted strip into any BitBlt-based repair.
+    /// </summary>
+    [DllImport("user32.dll")]
+    public static extern bool HideCaret(IntPtr hWnd);
+
+    [DllImport("user32.dll")]
+    public static extern bool ShowCaret(IntPtr hWnd);
+
     [DllImport("user32.dll")]
     public static extern uint GetWindowThreadProcessId(IntPtr hWnd, out uint processId);
 
