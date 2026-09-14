@@ -2,6 +2,8 @@
 bin/
 obj/
 publish/
+release-sc/
+*.zip
 
 # Rider / VS
 .vs/
