@@ -14,10 +14,37 @@ namespace StickyNote;
 ///
 /// After every paint this copies the freshly drawn pixels out, forces alpha to 255, and
 /// writes them straight back with SourceCopy so GDI+ restores the alpha byte.
+///
+/// The text caret is a second, independent problem: Windows blinks it by XOR-drawing
+/// straight to the window's DC on a hidden system timer, which never goes through WM_PAINT
+/// at all. If this class's repair happens to run while the caret is mid-blink (most likely
+/// under the rapid-fire WM_PAINT bursts a window drag produces), it captures that inverted
+/// pixel and re-stamps it as permanent opaque content -- visible as a lingering "highlight"
+/// that only clears once something forces a real content repaint of that spot (e.g. the
+/// text reflowing after a backspace). A periodic repair independent of WM_PAINT heals that
+/// within a fraction of a second instead of letting it stick indefinitely.
 /// </summary>
 internal sealed class OpaqueTextBox : TextBox
 {
     private const int WM_PAINT = 0x000F;
+
+    // Below this, back-to-back repairs (a WM_PAINT immediately followed by a timer tick)
+    // just redo the same work; above it, a stray caret-blink artifact is visible too long.
+    private const int MinRepairIntervalMs = 60;
+
+    private readonly System.Windows.Forms.Timer _healTimer;
+    private int _lastRepairTick;
+
+    private Bitmap? _buffer;
+    private Graphics? _bufferGraphics;
+    private Size _bufferSize;
+
+    public OpaqueTextBox()
+    {
+        _healTimer = new System.Windows.Forms.Timer { Interval = 120 };
+        _healTimer.Tick += (_, _) => RepairAlpha();
+        _healTimer.Start();
+    }
 
     protected override void WndProc(ref Message m)
     {
@@ -27,41 +54,72 @@ internal sealed class OpaqueTextBox : TextBox
             RepairAlpha();
     }
 
+    protected override void Dispose(bool disposing)
+    {
+        if (disposing)
+        {
+            _healTimer.Dispose();
+            _bufferGraphics?.Dispose();
+            _buffer?.Dispose();
+        }
+
+        base.Dispose(disposing);
+    }
+
     private void RepairAlpha()
     {
+        int now = Environment.TickCount;
+        if (unchecked(now - _lastRepairTick) < MinRepairIntervalMs)
+            return;
+
         Size size = ClientSize;
         if (size.Width <= 0 || size.Height <= 0 || !IsHandleCreated)
             return;
 
         try
         {
-            using var target = Graphics.FromHwnd(Handle);
-            using var snapshot = new Bitmap(size.Width, size.Height, PixelFormat.Format32bppArgb);
+            EnsureBuffer(size);
 
-            using (var into = Graphics.FromImage(snapshot))
+            using Graphics target = Graphics.FromHwnd(Handle);
+
+            IntPtr source = target.GetHdc();
+            IntPtr destination = _bufferGraphics!.GetHdc();
+            try
             {
-                IntPtr source = target.GetHdc();
-                IntPtr destination = into.GetHdc();
-                try
-                {
-                    Native.BitBlt(destination, 0, 0, size.Width, size.Height, source, 0, 0, Native.SRCCOPY);
-                }
-                finally
-                {
-                    into.ReleaseHdc(destination);
-                    target.ReleaseHdc(source);
-                }
+                Native.BitBlt(destination, 0, 0, size.Width, size.Height, source, 0, 0, Native.SRCCOPY);
+            }
+            finally
+            {
+                _bufferGraphics.ReleaseHdc(destination);
+                target.ReleaseHdc(source);
             }
 
-            ForceOpaque(snapshot);
+            ForceOpaque(_buffer!);
 
             target.CompositingMode = CompositingMode.SourceCopy;
-            target.DrawImageUnscaled(snapshot, 0, 0);
+            target.DrawImageUnscaled(_buffer!, 0, 0);
+
+            _lastRepairTick = now;
         }
         catch
         {
             // A dropped repair just means one frame looks washed out; never take the note down.
         }
+    }
+
+    /// <summary>Reused across repairs instead of allocated per-call, since the timer means this
+    /// now runs continuously rather than only on genuine content changes.</summary>
+    private void EnsureBuffer(Size size)
+    {
+        if (_buffer is not null && _bufferSize == size)
+            return;
+
+        _bufferGraphics?.Dispose();
+        _buffer?.Dispose();
+
+        _buffer = new Bitmap(size.Width, size.Height, PixelFormat.Format32bppArgb);
+        _bufferGraphics = Graphics.FromImage(_buffer);
+        _bufferSize = size;
     }
 
     private static unsafe void ForceOpaque(Bitmap bitmap)
