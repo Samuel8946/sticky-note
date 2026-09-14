@@ -350,7 +350,8 @@ internal sealed class NoteForm : Form
     public void ChooseFont()
     {
         using var dialog = new FontDialog { Font = _editor.Font, ShowEffects = false };
-        if (dialog.ShowDialog() != DialogResult.OK)
+
+        if (!TryShowCommonDialog(dialog, "choosing a font"))
             return;
 
         _settings.FontFamily = dialog.Font.FontFamily.Name;
@@ -368,7 +369,7 @@ internal sealed class NoteForm : Form
             Color = Color.FromArgb(background ? _settings.NoteColor : _settings.TextColor),
         };
 
-        if (dialog.ShowDialog() != DialogResult.OK)
+        if (!TryShowCommonDialog(dialog, "choosing a color"))
             return;
 
         if (background)
@@ -378,6 +379,43 @@ internal sealed class NoteForm : Form
 
         NoteStore.SaveSettings(_settings);
         ApplyAppearance();
+    }
+
+    /// <summary>
+    /// Runs a CommonDialog (FontDialog, ColorDialog, ...) with a real top-level owner window.
+    ///
+    /// Called with no owner, CommonDialog.ShowDialog() resolves one via GetActiveWindow().
+    /// NoteForm is a WS_CHILD of Explorer's desktop rather than a normal top-level window, so it
+    /// can never legitimately be "the active window" -- and after a tray-menu click there may be
+    /// no valid top-level window to fall back to at all. FontDialog specifically then builds its
+    /// DPI/Graphics context off that invalid handle, and Font.ToLogFont throws inside native
+    /// GDI+ interop ("Parameter is not valid"). A throwaway, offscreen, invisible top-level
+    /// window sidesteps the whole problem. The try/catch is a second line of defence: a crashed
+    /// dialog should never take down an always-running background note.
+    /// </summary>
+    private static bool TryShowCommonDialog(CommonDialog dialog, string action)
+    {
+        using var owner = new Form
+        {
+            ShowInTaskbar = false,
+            FormBorderStyle = FormBorderStyle.None,
+            StartPosition = FormStartPosition.Manual,
+            Location = new Point(-32000, -32000),
+            Size = new Size(1, 1),
+            Opacity = 0,
+        };
+
+        try
+        {
+            owner.Show();
+            return dialog.ShowDialog(owner) == DialogResult.OK;
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show($"Something went wrong {action}.\n\n{ex.Message}",
+                "Sticky Note", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            return false;
+        }
     }
 
     // ---- geometry -------------------------------------------------------------------
