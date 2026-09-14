@@ -9,6 +9,7 @@
     <AssemblyName>StickyNote</AssemblyName>
     <RootNamespace>StickyNote</RootNamespace>
     <ApplicationManifest>app.manifest</ApplicationManifest>
+    <ApplicationIcon>app.ico</ApplicationIcon>
     <SelfContained>false</SelfContained>
     <DebugType>embedded</DebugType>
     <SatelliteResourceLanguages>en</SatelliteResourceLanguages>

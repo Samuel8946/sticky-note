@@ -132,7 +132,4 @@ internal static class Native
 
     [DllImport("kernel32.dll")]
     public static extern uint GetCurrentThreadId();
-
-    [DllImport("user32.dll", SetLastError = true)]
-    public static extern bool DestroyIcon(IntPtr hIcon);
 }

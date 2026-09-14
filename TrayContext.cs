@@ -1,5 +1,4 @@
 using System.Diagnostics;
-using System.Drawing.Drawing2D;
 using Microsoft.Win32;
 
 namespace StickyNote;
@@ -106,38 +105,15 @@ internal sealed class TrayContext : ApplicationContext
         ExitThread();
     }
 
-    /// <summary>Draws the tray icon at runtime so the app stays a single self-contained file.</summary>
+    /// <summary>
+    /// Reuses the icon baked into the executable (see <c>ApplicationIcon</c> in the project
+    /// file) so the tray glyph and the exe's own icon always match, with no extra embedded
+    /// resource needed to keep the app a single self-contained file.
+    /// </summary>
     private static Icon CreateNoteIcon()
     {
-        using var bitmap = new Bitmap(32, 32);
-
-        using (Graphics g = Graphics.FromImage(bitmap))
-        {
-            g.SmoothingMode = SmoothingMode.AntiAlias;
-            g.Clear(Color.Transparent);
-
-            var body = new Rectangle(4, 3, 24, 26);
-            using (var fill = new SolidBrush(Color.FromArgb(255, 243, 176)))
-                g.FillRectangle(fill, body);
-            using (var edge = new Pen(Color.FromArgb(150, 124, 40), 1.6f))
-                g.DrawRectangle(edge, body);
-            using (var rule = new Pen(Color.FromArgb(120, 100, 36), 1.5f))
-            {
-                for (int i = 0; i < 4; i++)
-                    g.DrawLine(rule, 9, 10 + (i * 5), 23, 10 + (i * 5));
-            }
-        }
-
-        IntPtr handle = bitmap.GetHicon();
-        try
-        {
-            using var temporary = Icon.FromHandle(handle);
-            return (Icon)temporary.Clone();
-        }
-        finally
-        {
-            Native.DestroyIcon(handle);
-        }
+        string exePath = Environment.ProcessPath ?? Application.ExecutablePath;
+        return Icon.ExtractAssociatedIcon(exePath) is Icon fromExe ? fromExe : SystemIcons.Application;
     }
 
     protected override void Dispose(bool disposing)
