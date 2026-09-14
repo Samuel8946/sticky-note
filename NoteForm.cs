@@ -23,7 +23,7 @@ internal sealed class NoteForm : Form
     }
 
     private readonly NoteSettings _settings;
-    private readonly TextBox _editor;
+    private readonly OpaqueTextBox _editor;
     private readonly Font _headerFont;
     private readonly System.Windows.Forms.Timer _autoSave;
     private readonly System.Windows.Forms.Timer _zKeeper;
@@ -629,6 +629,8 @@ internal sealed class NoteForm : Form
         _dragOrigin = Cursor.Position;
         _dragStartBounds = GetScreenBounds();
         Capture = true;
+        // Drag ForceRedraws every move; pause alpha repair so caret blink cannot be stamped in.
+        _editor.SuspendRepairs();
     }
 
     protected override void OnMouseMove(MouseEventArgs e)
@@ -725,6 +727,7 @@ internal sealed class NoteForm : Form
 
         _dragZone = Zone.None;
         Capture = false;
+        _editor.ResumeRepairs();
         CaptureBounds();
         NoteStore.SaveSettings(_settings);
     }

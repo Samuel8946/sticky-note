@@ -21,8 +21,12 @@ namespace StickyNote;
 /// under the rapid-fire WM_PAINT bursts a window drag produces), it captures that inverted
 /// pixel and re-stamps it as permanent opaque content -- visible as a lingering "highlight"
 /// that only clears once something forces a real content repaint of that spot (e.g. the
-/// text reflowing after a backspace). A periodic repair independent of WM_PAINT heals that
-/// within a fraction of a second instead of letting it stick indefinitely.
+/// text reflowing after a backspace).
+///
+/// Two mitigations keep that from sticking: HideCaret around the blit so a mid-blink frame
+/// is never captured, and SuspendRepairs while the parent is dragging so the paint storm
+/// from SetWindowPos does not race the caret timer. A periodic heal still clears any stray
+/// artifact within a fraction of a second if one slips through.
 /// </summary>
 internal sealed class OpaqueTextBox : TextBox
 {
@@ -34,6 +38,7 @@ internal sealed class OpaqueTextBox : TextBox
 
     private readonly System.Windows.Forms.Timer _healTimer;
     private int _lastRepairTick;
+    private bool _repairsSuspended;
 
     private Bitmap? _buffer;
     private Graphics? _bufferGraphics;
@@ -44,6 +49,20 @@ internal sealed class OpaqueTextBox : TextBox
         _healTimer = new System.Windows.Forms.Timer { Interval = 120 };
         _healTimer.Tick += (_, _) => RepairAlpha();
         _healTimer.Start();
+    }
+
+    /// <summary>
+    /// Pause alpha repairs during move/resize. Drag produces a WM_PAINT storm via ForceRedraw;
+    /// repairing every frame races the caret blink and is the usual source of flicker.
+    /// </summary>
+    public void SuspendRepairs() => _repairsSuspended = true;
+
+    /// <summary>Resume repairs and run one immediately so the surface is opaque again.</summary>
+    public void ResumeRepairs()
+    {
+        _repairsSuspended = false;
+        _lastRepairTick = 0;
+        RepairAlpha();
     }
 
     protected override void WndProc(ref Message m)
@@ -68,6 +87,9 @@ internal sealed class OpaqueTextBox : TextBox
 
     private void RepairAlpha()
     {
+        if (_repairsSuspended)
+            return;
+
         int now = Environment.TickCount;
         if (unchecked(now - _lastRepairTick) < MinRepairIntervalMs)
             return;
@@ -82,22 +104,31 @@ internal sealed class OpaqueTextBox : TextBox
 
             using Graphics target = Graphics.FromHwnd(Handle);
 
-            IntPtr source = target.GetHdc();
-            IntPtr destination = _bufferGraphics!.GetHdc();
+            // HideCaret is cumulative and no-ops when this window does not own the caret.
+            Native.HideCaret(Handle);
             try
             {
-                Native.BitBlt(destination, 0, 0, size.Width, size.Height, source, 0, 0, Native.SRCCOPY);
+                IntPtr source = target.GetHdc();
+                IntPtr destination = _bufferGraphics!.GetHdc();
+                try
+                {
+                    Native.BitBlt(destination, 0, 0, size.Width, size.Height, source, 0, 0, Native.SRCCOPY);
+                }
+                finally
+                {
+                    _bufferGraphics.ReleaseHdc(destination);
+                    target.ReleaseHdc(source);
+                }
+
+                ForceOpaque(_buffer!);
+
+                target.CompositingMode = CompositingMode.SourceCopy;
+                target.DrawImageUnscaled(_buffer!, 0, 0);
             }
             finally
             {
-                _bufferGraphics.ReleaseHdc(destination);
-                target.ReleaseHdc(source);
+                Native.ShowCaret(Handle);
             }
-
-            ForceOpaque(_buffer!);
-
-            target.CompositingMode = CompositingMode.SourceCopy;
-            target.DrawImageUnscaled(_buffer!, 0, 0);
 
             _lastRepairTick = now;
         }
