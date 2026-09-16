@@ -1,0 +1,5 @@
+# Windows-only repo: normalize to CRLF so working-tree vs index diffs
+# stop being pure line-ending noise.
+* text=auto eol=crlf
+*.png binary
+*.ico binary

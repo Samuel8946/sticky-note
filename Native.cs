@@ -132,4 +132,10 @@ internal static class Native
 
     [DllImport("kernel32.dll")]
     public static extern uint GetCurrentThreadId();
+
+    [DllImport("user32.dll")]
+    public static extern bool HideCaret(IntPtr hWnd);
+
+    [DllImport("user32.dll")]
+    public static extern bool ShowCaret(IntPtr hWnd);
 }

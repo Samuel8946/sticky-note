@@ -214,15 +214,27 @@ internal sealed class NoteForm : Form
     /// <summary>
     /// Reparenting leaves the window holding a stale surface with no pending paint, so it keeps
     /// showing whatever pixels happened to be there. Nothing else invalidates it, so do it here.
+    ///
+    /// <paramref name="erase"/> defaults to true for that one-off case, where the surface is
+    /// genuinely foreign content left over from wherever the window used to be. It must be
+    /// false for the per-tick call from <see cref="SetScreenBounds"/> during a drag: RDW_ERASE
+    /// sends WM_ERASEBKGND down through RDW_ALLCHILDREN into the native Edit control inside
+    /// OpaqueTextBox, which clears its whole client area to alpha 0 -- full wallpaper
+    /// bleed-through -- an instant before the repaint (and OpaqueTextBox's own alpha repair)
+    /// patches it back to opaque. That gap is normally too short to see, but forcing it dozens
+    /// of times a second while dragging gives a fast/high-refresh-rate display's compositor a
+    /// real chance to actually present the transparent frame, which shows up as flicker.
     /// </summary>
-    private void ForceRedraw()
+    private void ForceRedraw(bool erase = true)
     {
         if (!IsHandleCreated)
             return;
 
-        Native.RedrawWindow(Handle, IntPtr.Zero, IntPtr.Zero,
-            Native.RDW_INVALIDATE | Native.RDW_ERASE | Native.RDW_FRAME |
-            Native.RDW_ALLCHILDREN | Native.RDW_UPDATENOW);
+        uint flags = Native.RDW_INVALIDATE | Native.RDW_FRAME | Native.RDW_ALLCHILDREN | Native.RDW_UPDATENOW;
+        if (erase)
+            flags |= Native.RDW_ERASE;
+
+        Native.RedrawWindow(Handle, IntPtr.Zero, IntPtr.Zero, flags);
     }
 
     public void Reattach()
@@ -449,8 +461,10 @@ internal sealed class NoteForm : Form
         Native.SetWindowPos(Handle, IntPtr.Zero, x, y, bounds.Width, bounds.Height,
             Native.SWP_NOZORDER | Native.SWP_NOACTIVATE | extraFlags);
 
-        // Moving inside the desktop does not reliably schedule a paint either.
-        ForceRedraw();
+        // Moving inside the desktop does not reliably schedule a paint either. No erase here:
+        // this runs on every mouse-move tick during a drag, and erasing that often is what
+        // causes the text box to visibly flash transparent (see ForceRedraw's doc comment).
+        ForceRedraw(erase: false);
     }
 
     /// <summary>Drags a note back into view if the monitor it lived on is gone.</summary>
