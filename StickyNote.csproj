@@ -20,4 +20,14 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
 
+  <ItemGroup>
+    <InternalsVisibleTo Include="StickyNote.Tests" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Remove="StickyNote.Tests/**" />
+    <EmbeddedResource Remove="StickyNote.Tests/**" />
+    <None Remove="StickyNote.Tests/**" />
+  </ItemGroup>
+
 </Project>

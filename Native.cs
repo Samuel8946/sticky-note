@@ -97,8 +97,43 @@ internal static class Native
 
     public const uint SRCCOPY = 0x00CC0020;
 
+    public const int NULLREGION = 1;
+    public const int SIMPLEREGION = 2;
+    public const int COMPLEXREGION = 3;
+
     [DllImport("gdi32.dll", SetLastError = true)]
     public static extern bool BitBlt(IntPtr dest, int x, int y, int cx, int cy, IntPtr src, int srcX, int srcY, uint rop);
+
+    [DllImport("gdi32.dll")]
+    public static extern int GetClipBox(IntPtr hdc, out RECT clip);
+
+    /// <summary>
+    /// Retrieves a specific region of the DC. Pass <see cref="SYSRGN"/> for the system
+    /// visible region (what overlapping windows actually leave uncovered). Unlike
+    /// GetClipRgn, that is not limited to an application SelectClipRgn.
+    /// </summary>
+    [DllImport("gdi32.dll")]
+    public static extern int GetRandomRgn(IntPtr hdc, IntPtr region, int type);
+
+    public const int SYSRGN = 4;
+
+    [DllImport("gdi32.dll")]
+    public static extern IntPtr CreateRectRgn(int x1, int y1, int x2, int y2);
+
+    [DllImport("gdi32.dll")]
+    public static extern int OffsetRgn(IntPtr region, int x, int y);
+
+    [DllImport("gdi32.dll")]
+    public static extern bool DeleteObject(IntPtr handle);
+
+    [DllImport("user32.dll")]
+    public static extern bool ClientToScreen(IntPtr hWnd, ref POINT point);
+
+    [DllImport("user32.dll")]
+    public static extern IntPtr GetDC(IntPtr hWnd);
+
+    [DllImport("user32.dll")]
+    public static extern int ReleaseDC(IntPtr hWnd, IntPtr hDC);
 
     [DllImport("user32.dll", CharSet = CharSet.Unicode)]
     public static extern uint RegisterWindowMessage(string lpString);

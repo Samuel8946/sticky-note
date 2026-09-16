@@ -217,13 +217,15 @@ internal sealed class NoteForm : Form
     ///
     /// <paramref name="erase"/> defaults to true for that one-off case, where the surface is
     /// genuinely foreign content left over from wherever the window used to be. It must be
-    /// false for the per-tick call from <see cref="SetScreenBounds"/> during a drag: RDW_ERASE
+    /// false for the per-tick call from <see cref="SetScreenBounds"/> during a move: RDW_ERASE
     /// sends WM_ERASEBKGND down through RDW_ALLCHILDREN into the native Edit control inside
     /// OpaqueTextBox, which clears its whole client area to alpha 0 -- full wallpaper
     /// bleed-through -- an instant before the repaint (and OpaqueTextBox's own alpha repair)
     /// patches it back to opaque. That gap is normally too short to see, but forcing it dozens
     /// of times a second while dragging gives a fast/high-refresh-rate display's compositor a
     /// real chance to actually present the transparent frame, which shows up as flicker.
+    /// Live resizes do not erase either: OpaqueTextBox primes its own newly exposed pixels
+    /// opaque, so a grow never needs a background wipe to avoid alpha 0.
     /// </summary>
     private void ForceRedraw(bool erase = true)
     {
@@ -461,9 +463,10 @@ internal sealed class NoteForm : Form
         Native.SetWindowPos(Handle, IntPtr.Zero, x, y, bounds.Width, bounds.Height,
             Native.SWP_NOZORDER | Native.SWP_NOACTIVATE | extraFlags);
 
-        // Moving inside the desktop does not reliably schedule a paint either. No erase here:
-        // this runs on every mouse-move tick during a drag, and erasing that often is what
-        // causes the text box to visibly flash transparent (see ForceRedraw's doc comment).
+        // Moving or resizing inside the desktop does not reliably schedule a paint. Never
+        // erase on this hot path, for moves or grows alike: WM_ERASEBKGND is what clears the
+        // text box to alpha 0. Newly exposed text-box pixels are primed opaque by
+        // OpaqueTextBox as it resizes, so there is nothing left here that needs erasing.
         ForceRedraw(erase: false);
     }
 
