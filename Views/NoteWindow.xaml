@@ -146,37 +146,76 @@
             <!-- Context Menu -->
             <Grid.ContextMenu>
                 <ContextMenu>
-                    <MenuItem Header="Colors">
+                    <!-- Note Color -->
+                    <MenuItem Header="Note Color">
                         <MenuItem.Template>
                             <ControlTemplate TargetType="MenuItem">
                                 <Border Padding="8,4">
                                     <StackPanel>
-                                        <TextBlock Text="Colors" FontWeight="SemiBold" Margin="0,0,0,8"/>
-                                        <WrapPanel>
-                                            <MenuItem Style="{StaticResource ColorMenuItem}" 
-                                                      Background="#FFF59D" 
-                                                      Click="Color_Click" Tag="#FFF59D"/>
-                                            <MenuItem Style="{StaticResource ColorMenuItem}" 
-                                                      Background="#F48FB1" 
-                                                      Click="Color_Click" Tag="#F48FB1"/>
-                                            <MenuItem Style="{StaticResource ColorMenuItem}" 
-                                                      Background="#90CAF9" 
-                                                      Click="Color_Click" Tag="#90CAF9"/>
-                                            <MenuItem Style="{StaticResource ColorMenuItem}" 
-                                                      Background="#A5D6A7" 
-                                                      Click="Color_Click" Tag="#A5D6A7"/>
-                                            <MenuItem Style="{StaticResource ColorMenuItem}" 
-                                                      Background="#FFCC80" 
-                                                      Click="Color_Click" Tag="#FFCC80"/>
-                                            <MenuItem Style="{StaticResource ColorMenuItem}" 
-                                                      Background="#CE93D8" 
-                                                      Click="Color_Click" Tag="#CE93D8"/>
+                                        <TextBlock Text="Note Color" FontWeight="SemiBold" Margin="0,0,0,8"/>
+                                        <WrapPanel MaxWidth="200">
+                                            <MenuItem Style="{StaticResource ColorMenuItem}" Background="#FFF59D" Click="Color_Click" Tag="#FFF59D"/>
+                                            <MenuItem Style="{StaticResource ColorMenuItem}" Background="#F48FB1" Click="Color_Click" Tag="#F48FB1"/>
+                                            <MenuItem Style="{StaticResource ColorMenuItem}" Background="#90CAF9" Click="Color_Click" Tag="#90CAF9"/>
+                                            <MenuItem Style="{StaticResource ColorMenuItem}" Background="#A5D6A7" Click="Color_Click" Tag="#A5D6A7"/>
+                                            <MenuItem Style="{StaticResource ColorMenuItem}" Background="#FFCC80" Click="Color_Click" Tag="#FFCC80"/>
+                                            <MenuItem Style="{StaticResource ColorMenuItem}" Background="#CE93D8" Click="Color_Click" Tag="#CE93D8"/>
+                                            <MenuItem Style="{StaticResource ColorMenuItem}" Background="#EF9A9A" Click="Color_Click" Tag="#EF9A9A"/>
+                                            <MenuItem Style="{StaticResource ColorMenuItem}" Background="#80CBC4" Click="Color_Click" Tag="#80CBC4"/>
+                                            <MenuItem Style="{StaticResource ColorMenuItem}" Background="#9FA8DA" Click="Color_Click" Tag="#9FA8DA"/>
+                                            <MenuItem Style="{StaticResource ColorMenuItem}" Background="#E6EE9C" Click="Color_Click" Tag="#E6EE9C"/>
+                                            <MenuItem Style="{StaticResource ColorMenuItem}" Background="#FFE082" Click="Color_Click" Tag="#FFE082"/>
+                                            <MenuItem Style="{StaticResource ColorMenuItem}" Background="#80DEEA" Click="Color_Click" Tag="#80DEEA"/>
+                                            <MenuItem Style="{StaticResource ColorMenuItem}" Background="#BCAAA4" Click="Color_Click" Tag="#BCAAA4"/>
+                                            <MenuItem Style="{StaticResource ColorMenuItem}" Background="#EEEEEE" Click="Color_Click" Tag="#EEEEEE"/>
+                                            <MenuItem Style="{StaticResource ColorMenuItem}" Background="#FFFFFF" Click="Color_Click" Tag="#FFFFFF"/>
                                         </WrapPanel>
+                                        <Button Content="Custom Color..." Margin="0,8,0,0" Click="CustomColor_Click" HorizontalAlignment="Left"/>
                                     </StackPanel>
                                 </Border>
                             </ControlTemplate>
                         </MenuItem.Template>
                     </MenuItem>
+                    
+                    <!-- Text Color -->
+                    <MenuItem Header="Text Color">
+                        <MenuItem.Template>
+                            <ControlTemplate TargetType="MenuItem">
+                                <Border Padding="8,4">
+                                    <StackPanel>
+                                        <TextBlock Text="Text Color" FontWeight="SemiBold" Margin="0,0,0,8"/>
+                                        <WrapPanel MaxWidth="200">
+                                            <MenuItem Style="{StaticResource ColorMenuItem}" Background="#000000" Click="TextColor_Click" Tag="#000000"/>
+                                            <MenuItem Style="{StaticResource ColorMenuItem}" Background="#333333" Click="TextColor_Click" Tag="#333333"/>
+                                            <MenuItem Style="{StaticResource ColorMenuItem}" Background="#666666" Click="TextColor_Click" Tag="#666666"/>
+                                            <MenuItem Style="{StaticResource ColorMenuItem}" Background="#999999" Click="TextColor_Click" Tag="#999999"/>
+                                            <MenuItem Style="{StaticResource ColorMenuItem}" Background="#FFFFFF" Click="TextColor_Click" Tag="#FFFFFF"/>
+                                            <MenuItem Style="{StaticResource ColorMenuItem}" Background="#D32F2F" Click="TextColor_Click" Tag="#D32F2F"/>
+                                            <MenuItem Style="{StaticResource ColorMenuItem}" Background="#1976D2" Click="TextColor_Click" Tag="#1976D2"/>
+                                            <MenuItem Style="{StaticResource ColorMenuItem}" Background="#388E3C" Click="TextColor_Click" Tag="#388E3C"/>
+                                            <MenuItem Style="{StaticResource ColorMenuItem}" Background="#7B1FA2" Click="TextColor_Click" Tag="#7B1FA2"/>
+                                            <MenuItem Style="{StaticResource ColorMenuItem}" Background="#F57C00" Click="TextColor_Click" Tag="#F57C00"/>
+                                        </WrapPanel>
+                                        <Button Content="Custom Color..." Margin="0,8,0,0" Click="CustomTextColor_Click" HorizontalAlignment="Left"/>
+                                    </StackPanel>
+                                </Border>
+                            </ControlTemplate>
+                        </MenuItem.Template>
+                    </MenuItem>
+                    
+                    <Separator/>
+                    
+                    <!-- Font Family -->
+                    <MenuItem Header="Font" x:Name="FontFamilyMenu"/>
+                    
+                    <!-- Font Size -->
+                    <MenuItem Header="Size" x:Name="FontSizeMenu"/>
+                    
+                    <Separator/>
+                    
+                    <!-- Font Style -->
+                    <MenuItem Header="Bold" x:Name="BoldMenuItem" IsCheckable="True" Click="Bold_Click"/>
+                    <MenuItem Header="Italic" x:Name="ItalicMenuItem" IsCheckable="True" Click="Italic_Click"/>
                 </ContextMenu>
             </Grid.ContextMenu>
         </Grid>
