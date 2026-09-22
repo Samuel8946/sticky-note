@@ -10,7 +10,7 @@
         ShowInTaskbar="False"
         Background="Transparent"
         Opacity="0"
-        Icon="/sticky icon.png"
+        Icon="pack://application:,,,/sticky icon.png"
         Loaded="Window_Loaded">
 
     <Window.Resources>

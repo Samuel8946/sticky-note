@@ -11,6 +11,7 @@ public class NoteManager
     private readonly Dictionary<Guid, NoteWindow> _windows = new();
 
     public bool HasNotes => _notes.Count > 0;
+    public bool AnyNotesVisible => _windows.Values.Any(w => w.IsVisible);
 
     public NoteManager(NoteStore store)
     {
@@ -111,6 +112,18 @@ public class NoteManager
         foreach (var window in _windows.Values)
         {
             window.Hide();
+        }
+    }
+
+    public void ToggleAllNotes()
+    {
+        if (AnyNotesVisible)
+        {
+            HideAllNotes();
+        }
+        else
+        {
+            ShowAllNotes();
         }
     }
 

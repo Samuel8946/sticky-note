@@ -1,48 +1,82 @@
-# Sticky Note v2
+# StickNote
 
-A modern, lightweight sticky notes application for Windows built with WPF.
+A modern sticky-notes app for Windows. Notes live on your desktop, save automatically, and stay out of the way until you need them.
 
-## Features
+![Write a note](Assets/Guide/01-write.png)
 
-- **Flat Design** - Clean, minimal UI with pastel color palette
-- **Multiple Colors** - Yellow, Pink, Blue, Green, Orange, Purple
-- **Always on Top** - Pin notes to stay visible over other windows
-- **Resizable** - Drag corners to resize notes
-- **System Tray** - Runs quietly in the background
-- **Auto-save** - Notes are automatically saved
-- **Start with Windows** - Optional auto-start on login
+## Quick start
+
+1. Download **StickNote-win-x64.zip** from [Releases](https://github.com/Samuel8946/sticky-note/releases).
+2. Run `StickNote.exe` (.NET 8 runtime required).
+3. On first launch, a visual guide walks through the essentials. You can open it later from the tray: **How to use StickNote**.
+
+Hide or show every note at any time with **Alt+`**.
+
+## How to use
+
+### 1. Write anything
+
+Click a note and type. Lists, reminders, and ideas all save by themselves.
+
+![Grocery list note](Assets/Guide/01-write.png)
+
+### 2. Color-code your notes
+
+Right-click the **title bar** (not the text) and pick a note color so work, home, and ideas stay distinct.
+
+![Blue work note](Assets/Guide/02-color.png)
+
+### 3. Make it your font
+
+Right-click → **Font** to change family, size, bold, and italic.
+
+![Italic idea note](Assets/Guide/03-font.png)
+
+### 4. Change the text color
+
+Same menu → **Text Color**. Useful for headings or making one line stand out.
+
+![Green personal note](Assets/Guide/04-text-color.png)
+
+### 5. Pin on top
+
+Click **📌**. Pinned notes stay visible over other windows — including after Win+D.
+
+![Pinned grocery note](Assets/Guide/05-pin.png)
+
+### 6. Make another note
+
+Click **+** on any note, or double-click the tray icon.
+
+![New blank note](Assets/Guide/06-new.png)
+
+### 7. Hide, show, and style
+
+Press **Alt+`** to hide all notes, then press it again to bring them back.
+
+Right-click the title bar for note color, text color, and fonts:
+
+![Color and font menu](Assets/Guide/07-menu.png)
+
+## Tray menu
+
+- New Note
+- Show / Hide All Notes (`Alt+``)
+- Start with Windows
+- How to use StickNote
+- Exit
 
 ## Requirements
 
 - Windows 10/11
-- .NET 8.0 Runtime
+- [.NET 8 Desktop Runtime](https://dotnet.microsoft.com/download/dotnet/8.0)
 
-## Building
+## Data
 
-```bash
-dotnet build
-```
+Notes are saved to `%AppData%\StickyNoteV2\notes.json`.
 
-## Running
+## Build
 
 ```bash
-dotnet run
+dotnet publish -c Release -o publish-v2
 ```
-
-## Usage
-
-- **Create Note**: Double-click tray icon or click "+" button on any note
-- **Change Color**: Right-click note → Colors
-- **Pin/Unpin**: Click pin icon or double-click title bar
-- **Delete Note**: Click "X" button
-- **Move Note**: Drag the title bar
-- **Resize Note**: Drag the resize grip (bottom-right corner)
-
-## Keyboard Shortcuts
-
-- `Ctrl+A` - Select all text in a note
-- `Tab` - Insert tab character
-
-## Data Storage
-
-Notes are saved to: `%AppData%\StickyNoteV2\notes.json`

@@ -19,7 +19,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="tools/**" />
+    <None Remove="tools/**" />
     <Resource Include="sticky icon.png" />
+    <Resource Include="Assets/Guide/*.png" />
     <Content Include="app.ico">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
