@@ -18,7 +18,7 @@ public class TrayManager : IDisposable
         _trayIcon = new WinForms.NotifyIcon
         {
             Icon = CreateDefaultIcon(),
-            Text = "Sticky Notes v2",
+            Text = "StickNote",
             Visible = true
         };
 
@@ -81,25 +81,41 @@ public class TrayManager : IDisposable
 
     private Icon CreateDefaultIcon()
     {
-        // Create a simple sticky note icon programmatically
-        var bitmap = new Bitmap(32, 32);
-        using (var g = Graphics.FromImage(bitmap))
+        // Try to load the custom icon
+        try
+        {
+            var appDir = AppDomain.CurrentDomain.BaseDirectory;
+            var icoPath = System.IO.Path.Combine(appDir, "app.ico");
+            if (System.IO.File.Exists(icoPath))
+            {
+                return new Icon(icoPath);
+            }
+            
+            var pngPath = System.IO.Path.Combine(appDir, "sticky icon.png");
+            if (System.IO.File.Exists(pngPath))
+            {
+                var bitmap = new Bitmap(pngPath);
+                return Icon.FromHandle(bitmap.GetHicon());
+            }
+        }
+        catch { }
+
+        // Fallback: Create a simple sticky note icon programmatically
+        var fallbackBitmap = new Bitmap(32, 32);
+        using (var g = Graphics.FromImage(fallbackBitmap))
         {
             g.Clear(Color.Transparent);
             
-            // Draw a yellow sticky note shape
-            using (var brush = new SolidBrush(Color.FromArgb(255, 245, 157))) // #FFF59D
+            using (var brush = new SolidBrush(Color.FromArgb(255, 245, 157)))
             {
                 g.FillRectangle(brush, 2, 2, 28, 28);
             }
             
-            // Draw border
             using (var pen = new Pen(Color.FromArgb(200, 200, 100), 1))
             {
                 g.DrawRectangle(pen, 2, 2, 27, 27);
             }
             
-            // Draw some lines to represent text
             using (var pen = new Pen(Color.FromArgb(100, 100, 100), 1))
             {
                 g.DrawLine(pen, 6, 10, 24, 10);
@@ -108,7 +124,7 @@ public class TrayManager : IDisposable
             }
         }
         
-        return Icon.FromHandle(bitmap.GetHicon());
+        return Icon.FromHandle(fallbackBitmap.GetHicon());
     }
 
     public void Dispose()

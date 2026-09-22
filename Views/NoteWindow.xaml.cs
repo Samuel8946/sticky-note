@@ -9,7 +9,6 @@ using WpfColorConverter = System.Windows.Media.ColorConverter;
 using WpfFontFamily = System.Windows.Media.FontFamily;
 using WpfButton = System.Windows.Controls.Button;
 using WpfMenuItem = System.Windows.Controls.MenuItem;
-using WinForms = System.Windows.Forms;
 
 namespace StickyNoteV2.Views;
 
@@ -194,53 +193,91 @@ public partial class NoteWindow : Window
     // Custom color picker
     private void CustomColor_Click(object sender, RoutedEventArgs e)
     {
-        var picker = new ColorPickerWindow(_note.Color);
+        WpfColor currentColor;
+        try
+        {
+            currentColor = (WpfColor)WpfColorConverter.ConvertFromString(_note.Color);
+        }
+        catch
+        {
+            currentColor = Colors.Yellow;
+        }
+
+        var originalColor = _note.Color;
+        var picker = new ColorPickerWindow(currentColor);
         picker.Owner = this;
+
+        // Handle Apply button - preview the color
+        picker.ColorApplied += (color) =>
+        {
+            var hexColor = $"#{color.R:X2}{color.G:X2}{color.B:X2}";
+            SetColor(hexColor);
+        };
+
         picker.ShowDialog();
 
-        if (picker.Confirmed)
+        if (picker.DialogResult)
         {
-            SetColor(picker.SelectedColor);
+            var selectedColor = picker.SelectedColor;
+            var hexColor = $"#{selectedColor.R:X2}{selectedColor.G:X2}{selectedColor.B:X2}";
+            SetColor(hexColor);
             NoteChanged?.Invoke(_note);
+        }
+        else
+        {
+            // Cancelled - restore original color
+            SetColor(originalColor);
         }
     }
 
-    // Font picker using Windows Forms FontDialog
+    // Font picker using custom dialog
     private void ChangeFont_Click(object sender, RoutedEventArgs e)
     {
-        using var fontDialog = new WinForms.FontDialog
+        var originalFamily = _note.FontFamily;
+        var originalSize = _note.FontSize;
+        var originalBold = _note.IsBold;
+        var originalItalic = _note.IsItalic;
+
+        var picker = new FontPickerWindow(_note.FontFamily, _note.FontSize, _note.IsBold, _note.IsItalic);
+        picker.Owner = this;
+
+        // Handle Apply button - preview the font
+        picker.FontApplied += (family, size, bold, italic) =>
         {
-            AllowVerticalFonts = false,
-            AllowScriptChange = true,
-            ShowEffects = false
+            _note.FontFamily = family;
+            _note.FontSize = size;
+            _note.IsBold = bold;
+            _note.IsItalic = italic;
+            ApplyFont();
+            BoldMenuItem.IsChecked = bold;
+            ItalicMenuItem.IsChecked = italic;
         };
 
-        // Set current font
-        try
-        {
-            var style = System.Drawing.FontStyle.Regular;
-            if (_note.IsBold) style |= System.Drawing.FontStyle.Bold;
-            if (_note.IsItalic) style |= System.Drawing.FontStyle.Italic;
-            
-            fontDialog.Font = new System.Drawing.Font(_note.FontFamily, (float)_note.FontSize, style);
-        }
-        catch { }
+        picker.ShowDialog();
 
-        if (fontDialog.ShowDialog() == WinForms.DialogResult.OK)
+        if (picker.DialogResult)
         {
-            var selectedFont = fontDialog.Font;
-            _note.FontFamily = selectedFont.FontFamily.Name;
-            _note.FontSize = selectedFont.Size;
-            _note.IsBold = selectedFont.Bold;
-            _note.IsItalic = selectedFont.Italic;
-            
+            _note.FontFamily = picker.SelectedFontFamily;
+            _note.FontSize = picker.SelectedFontSize;
+            _note.IsBold = picker.SelectedBold;
+            _note.IsItalic = picker.SelectedItalic;
+
             ApplyFont();
-            
-            // Update menu checkboxes
             BoldMenuItem.IsChecked = _note.IsBold;
             ItalicMenuItem.IsChecked = _note.IsItalic;
-            
+
             NoteChanged?.Invoke(_note);
+        }
+        else
+        {
+            // Cancelled - restore original font
+            _note.FontFamily = originalFamily;
+            _note.FontSize = originalSize;
+            _note.IsBold = originalBold;
+            _note.IsItalic = originalItalic;
+            ApplyFont();
+            BoldMenuItem.IsChecked = originalBold;
+            ItalicMenuItem.IsChecked = originalItalic;
         }
     }
 
@@ -285,15 +322,43 @@ public partial class NoteWindow : Window
     // Custom font color picker
     private void CustomFontColor_Click(object sender, RoutedEventArgs e)
     {
-        var picker = new ColorPickerWindow(_note.FontColor);
+        WpfColor currentColor;
+        try
+        {
+            currentColor = (WpfColor)WpfColorConverter.ConvertFromString(_note.FontColor);
+        }
+        catch
+        {
+            currentColor = Colors.Black;
+        }
+
+        var originalColor = _note.FontColor;
+        var picker = new ColorPickerWindow(currentColor);
         picker.Owner = this;
+
+        // Handle Apply button - preview the color
+        picker.ColorApplied += (color) =>
+        {
+            var hexColor = $"#{color.R:X2}{color.G:X2}{color.B:X2}";
+            _note.FontColor = hexColor;
+            ApplyFontColor();
+        };
+
         picker.ShowDialog();
 
-        if (picker.Confirmed)
+        if (picker.DialogResult)
         {
-            _note.FontColor = picker.SelectedColor;
+            var selectedColor = picker.SelectedColor;
+            var hexColor = $"#{selectedColor.R:X2}{selectedColor.G:X2}{selectedColor.B:X2}";
+            _note.FontColor = hexColor;
             ApplyFontColor();
             NoteChanged?.Invoke(_note);
+        }
+        else
+        {
+            // Cancelled - restore original color
+            _note.FontColor = originalColor;
+            ApplyFontColor();
         }
     }
 

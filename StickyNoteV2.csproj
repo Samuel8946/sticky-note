@@ -8,8 +8,21 @@
     <UseWPF>true</UseWPF>
     <UseWindowsForms>true</UseWindowsForms>
     <ApplicationManifest>app.manifest</ApplicationManifest>
-    <AssemblyName>StickyNoteV2</AssemblyName>
+    <ApplicationIcon>app.ico</ApplicationIcon>
+    <AssemblyName>StickNote</AssemblyName>
     <RootNamespace>StickyNoteV2</RootNamespace>
+    <Product>StickNote</Product>
+    <AssemblyTitle>StickNote</AssemblyTitle>
+    <Version>2.0.1</Version>
+    <FileVersion>2.0.1</FileVersion>
+    <InformationalVersion>2.0.1</InformationalVersion>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Resource Include="sticky icon.png" />
+    <Content Include="app.ico">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
 
 </Project>

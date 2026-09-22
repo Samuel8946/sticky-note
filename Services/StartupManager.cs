@@ -4,7 +4,7 @@ namespace StickyNoteV2.Services;
 
 public static class StartupManager
 {
-    private const string AppName = "StickyNoteV2";
+    private const string AppName = "StickNote";
     private const string RegistryKey = @"SOFTWARE\Microsoft\Windows\CurrentVersion\Run";
 
     public static bool IsEnabled()

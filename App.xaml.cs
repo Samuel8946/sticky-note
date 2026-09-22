@@ -17,7 +17,7 @@ public partial class App : System.Windows.Application
         if (!createdNew)
         {
             // Another instance is already running
-            System.Windows.MessageBox.Show("Sticky Note is already running!", "Sticky Note", 
+            System.Windows.MessageBox.Show("StickNote is already running!", "StickNote", 
                 System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Information);
             Shutdown();
             return;
