@@ -18,6 +18,7 @@ public class Note
     public double FontSize { get; set; } = 14;
     public bool IsBold { get; set; } = false;
     public bool IsItalic { get; set; } = false;
+    public string FontColor { get; set; } = "#000000"; // Default black text
 }
 
 public static class NoteColors

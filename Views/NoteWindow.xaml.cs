@@ -38,8 +38,9 @@ public partial class NoteWindow : Window
         NoteTextBox.Text = note.Content;
         SetColor(note.Color);
 
-        // Set font
+        // Set font and font color
         ApplyFont();
+        ApplyFontColor();
 
         // Set pin state
         Topmost = note.IsPinned;
@@ -75,6 +76,21 @@ public partial class NoteWindow : Window
         NoteTextBox.FontSize = _note.FontSize;
         NoteTextBox.FontWeight = _note.IsBold ? FontWeights.Bold : FontWeights.Normal;
         NoteTextBox.FontStyle = _note.IsItalic ? FontStyles.Italic : FontStyles.Normal;
+    }
+
+    private void ApplyFontColor()
+    {
+        try
+        {
+            var color = (WpfColor)WpfColorConverter.ConvertFromString(_note.FontColor);
+            NoteTextBox.Foreground = new SolidColorBrush(color);
+            NoteTextBox.CaretBrush = new SolidColorBrush(color);
+        }
+        catch
+        {
+            NoteTextBox.Foreground = new SolidColorBrush(Colors.Black);
+            NoteTextBox.CaretBrush = new SolidColorBrush(Colors.Black);
+        }
     }
 
     private void SetColor(string hexColor)
@@ -266,6 +282,45 @@ public partial class NoteWindow : Window
         _note.IsItalic = ItalicMenuItem.IsChecked;
         ApplyFont();
         NoteChanged?.Invoke(_note);
+    }
+
+    // Font color preset buttons
+    private void FontColor_Click(object sender, RoutedEventArgs e)
+    {
+        if (sender is WpfButton button && button.Tag is string color)
+        {
+            _note.FontColor = color;
+            ApplyFontColor();
+            NoteChanged?.Invoke(_note);
+        }
+    }
+
+    // Custom font color picker
+    private void CustomFontColor_Click(object sender, RoutedEventArgs e)
+    {
+        using var colorDialog = new WinForms.ColorDialog
+        {
+            AllowFullOpen = true,
+            AnyColor = true,
+            FullOpen = true
+        };
+
+        // Set current color
+        try
+        {
+            var currentColor = (WpfColor)WpfColorConverter.ConvertFromString(_note.FontColor);
+            colorDialog.Color = System.Drawing.Color.FromArgb(currentColor.A, currentColor.R, currentColor.G, currentColor.B);
+        }
+        catch { }
+
+        if (colorDialog.ShowDialog() == WinForms.DialogResult.OK)
+        {
+            var selectedColor = colorDialog.Color;
+            var hexColor = $"#{selectedColor.R:X2}{selectedColor.G:X2}{selectedColor.B:X2}";
+            _note.FontColor = hexColor;
+            ApplyFontColor();
+            NoteChanged?.Invoke(_note);
+        }
     }
 
     /// <summary>
