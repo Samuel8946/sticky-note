@@ -1,15 +1,41 @@
-# Build outputs
+# Build results
 bin/
 obj/
-publish/
-release-sc/
-*.zip
+[Dd]ebug/
+[Rr]elease/
 
-# Rider / VS
+# Visual Studio
 .vs/
 *.user
 *.suo
+*.userosscache
+*.sln.docstates
 
-# OS cruft
+# NuGet
+packages/
+*.nupkg
+project.lock.json
+project.fragment.lock.json
+artifacts/
+
+# Rider
+.idea/
+
+# User-specific files
+*.rsuser
+*.userprefs
+
+# Build logs
+*.log
+msbuild*.wrn
+msbuild*.err
+
+# Windows
 Thumbs.db
-.DS_Store
+ehthumbs.db
+Desktop.ini
+
+# Published artifacts
+publish/
+release-sc/
+*.zip

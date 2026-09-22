@@ -1,0 +1,21 @@
+<Application x:Class="StickyNoteV2.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             ShutdownMode="OnExplicitShutdown">
+    <Application.Resources>
+        <!-- Flat Design Color Palette -->
+        <Color x:Key="NoteYellow">#FFF59D</Color>
+        <Color x:Key="NotePink">#F48FB1</Color>
+        <Color x:Key="NoteBlue">#90CAF9</Color>
+        <Color x:Key="NoteGreen">#A5D6A7</Color>
+        <Color x:Key="NoteOrange">#FFCC80</Color>
+        <Color x:Key="NotePurple">#CE93D8</Color>
+        
+        <SolidColorBrush x:Key="NoteYellowBrush" Color="{StaticResource NoteYellow}"/>
+        <SolidColorBrush x:Key="NotePinkBrush" Color="{StaticResource NotePink}"/>
+        <SolidColorBrush x:Key="NoteBlueBrush" Color="{StaticResource NoteBlue}"/>
+        <SolidColorBrush x:Key="NoteGreenBrush" Color="{StaticResource NoteGreen}"/>
+        <SolidColorBrush x:Key="NoteOrangeBrush" Color="{StaticResource NoteOrange}"/>
+        <SolidColorBrush x:Key="NotePurpleBrush" Color="{StaticResource NotePurple}"/>
+    </Application.Resources>
+</Application>
