@@ -191,29 +191,16 @@ public partial class NoteWindow : Window
         }
     }
 
-    // Custom color picker using Windows Forms ColorDialog
+    // Custom color picker
     private void CustomColor_Click(object sender, RoutedEventArgs e)
     {
-        using var colorDialog = new WinForms.ColorDialog
-        {
-            AllowFullOpen = true,
-            AnyColor = true,
-            FullOpen = true
-        };
+        var picker = new ColorPickerWindow(_note.Color);
+        picker.Owner = this;
+        picker.ShowDialog();
 
-        // Set current color
-        try
+        if (picker.Confirmed)
         {
-            var currentColor = (WpfColor)WpfColorConverter.ConvertFromString(_note.Color);
-            colorDialog.Color = System.Drawing.Color.FromArgb(currentColor.A, currentColor.R, currentColor.G, currentColor.B);
-        }
-        catch { }
-
-        if (colorDialog.ShowDialog() == WinForms.DialogResult.OK)
-        {
-            var selectedColor = colorDialog.Color;
-            var hexColor = $"#{selectedColor.R:X2}{selectedColor.G:X2}{selectedColor.B:X2}";
-            SetColor(hexColor);
+            SetColor(picker.SelectedColor);
             NoteChanged?.Invoke(_note);
         }
     }
@@ -298,26 +285,13 @@ public partial class NoteWindow : Window
     // Custom font color picker
     private void CustomFontColor_Click(object sender, RoutedEventArgs e)
     {
-        using var colorDialog = new WinForms.ColorDialog
-        {
-            AllowFullOpen = true,
-            AnyColor = true,
-            FullOpen = true
-        };
+        var picker = new ColorPickerWindow(_note.FontColor);
+        picker.Owner = this;
+        picker.ShowDialog();
 
-        // Set current color
-        try
+        if (picker.Confirmed)
         {
-            var currentColor = (WpfColor)WpfColorConverter.ConvertFromString(_note.FontColor);
-            colorDialog.Color = System.Drawing.Color.FromArgb(currentColor.A, currentColor.R, currentColor.G, currentColor.B);
-        }
-        catch { }
-
-        if (colorDialog.ShowDialog() == WinForms.DialogResult.OK)
-        {
-            var selectedColor = colorDialog.Color;
-            var hexColor = $"#{selectedColor.R:X2}{selectedColor.G:X2}{selectedColor.B:X2}";
-            _note.FontColor = hexColor;
+            _note.FontColor = picker.SelectedColor;
             ApplyFontColor();
             NoteChanged?.Invoke(_note);
         }
