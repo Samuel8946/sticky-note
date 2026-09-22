@@ -13,9 +13,9 @@
     <RootNamespace>StickyNoteV2</RootNamespace>
     <Product>StickNote</Product>
     <AssemblyTitle>StickNote</AssemblyTitle>
-    <Version>2.0.1</Version>
-    <FileVersion>2.0.1</FileVersion>
-    <InformationalVersion>2.0.1</InformationalVersion>
+    <Version>2.1.0</Version>
+    <FileVersion>2.1.0</FileVersion>
+    <InformationalVersion>2.1.0</InformationalVersion>
   </PropertyGroup>
 
   <ItemGroup>
